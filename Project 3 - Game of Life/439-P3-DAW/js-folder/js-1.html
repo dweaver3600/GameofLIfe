@@ -1,0 +1,519 @@
+<!doctype html><html><head>
+    <title>This is an HTML canvas</title>
+    <link rel="stylesheet" href="../assets/styles.css">
+
+    <script type="text/javascript" src="../assets/draw-stuff - END RESULT.js"></script>
+</head>
+                     <body>
+                         <h1>Playing the HTML canvas</h1>
+                         <h4>Time-stamp: <2019-01-21 20:11:03 Chuck Siska></h4>
+
+                         <canvas id="grid" width="410" height="200"></canvas>
+                         <button id = "all" onclick="draw_rect(context)">END RESULT</button>
+                         <button id ="step" onclick="draw_rect_step(context)">Step Through</button>
+
+                         <script>
+                             // after "Introducing JavaScript Game Development" by Stuart.
+
+                             // =====================================================  draw_title ====
+                             // Draw filled rect.
+                             function draw_title(context) {
+                                 context.save();
+                                 context.fillStyle = 'lightgrey';
+                                 context.font = "30px Arial";
+                                 context.fillText("Grid", 150, 140);
+                                 context.restore();
+                             }
+                             // =====================================================  Main ====
+                             var canvas = document.getElementById("grid");
+                             var context = canvas.getContext("2d");
+
+                             //draw_rect(context); // a gray rectangle
+
+                             // Draw a grid
+                             //draw_grid( context, 10, 50, 'white', 'yellow' );
+
+                             //draw_title( context );  The word "Grid"
+
+                             //context.fillStyle = "red";
+
+                             //context.putImageData(imgData, 0, 0);
+                         </script>
+
+                         <script>
+                             var sx = 1;
+                             var psx = sx;
+
+                             var sy = 1;
+                             var psy = sy;
+
+                             var cell = 0;
+                             var cstep = 0;
+                             var tstep = 0;
+                             var hidden_color = "white";
+
+                             var cell_color = []; // an array of all the colors on the grid
+                             var color_set = [];
+                             var pattern_fill = "white";
+
+                             var previous_color;
+                             var current_color;
+                             var next_color;
+
+                             var new_color = true;
+                             var set_up = true;
+
+                             var back_one = false;
+                             var down_one = false;
+                             var up_one = false;
+
+                             var left_edge = false;
+                             var right_edge = false;
+
+                             function draw_rect_step(ctx, stroke, fill) {
+
+                                 if (set_up == true) { setup_step(ctx); set_up = false; }
+
+                                 if (tstep == 3) {
+                                     if (back_one == false) {
+
+                                         previous_color = color_set[0];
+                                         current_color = color_set[1];
+                                         next_color = color_set[2];
+
+                                         // ================================ RULES
+
+                                         // b b b
+                                         //   b
+
+                                         if (previous_color == "black" &&
+                                             current_color == "black" &&
+                                             next_color == "black") {
+
+                                             cell_color[cell + 41] = ("black");
+                                             pattern_fill = "black";
+                                         }
+
+                                         // b b w
+                                         //   w
+
+                                         else if (previous_color == "black" &&
+                                             current_color == "black" &&
+                                             next_color == "white") {
+
+                                             cell_color[cell + 41] = ("white");
+                                             pattern_fill = "white";
+                                         }
+
+                                         // b w b
+                                         //   w
+
+                                         else if (previous_color == "black" &&
+                                             current_color == "white" &&
+                                             next_color == "black") {
+
+                                             cell_color[cell + 41] = ("white");
+                                             pattern_fill = "white";
+                                         }
+
+                                         // b w w
+                                         //   b
+
+                                         else if (previous_color == "black" &&
+                                             current_color == "white" &&
+                                             next_color == "white") {
+
+                                             cell_color[cell + 41] = ("black");
+                                             pattern_fill = "black";
+                                         }
+
+                                         // w b b
+                                         //   b
+
+                                         else if (previous_color == "white" &&
+                                             current_color == "black" &&
+                                             next_color == "black") {
+
+                                             cell_color[cell + 41] = ("white");
+                                             pattern_fill = "white";
+                                         }
+
+                                         // w b w
+                                         //   b
+
+                                         else if (previous_color == "white" &&
+                                             current_color == "black" &&
+                                             next_color == "white") {
+
+                                             cell_color[cell + 41] = ("black");
+                                             pattern_fill = "black";
+                                         }
+
+                                         // w w b
+                                         //   b
+
+                                         else if (previous_color == "white" &&
+                                             current_color == "white" &&
+                                             next_color == "black") {
+
+                                             cell_color[cell + 41] = ("black");
+                                             pattern_fill = "black";
+                                         }
+
+                                         // w w w
+                                         //   w
+                                         else if (previous_color == "white" &&
+                                             current_color == "white" &&
+                                             next_color == "white") {
+
+                                             cell_color[cell + 42] = ("white");
+                                             pattern_fill = "white";
+                                         }
+
+                                         //alert("pattern: " + pattern_fill);
+                                     // ================================ END RULES
+                                         cell_color[cell + 40] = pattern_fill;
+                                         //alert(cell);
+
+                                         ctx.fillStyle = cell_color[cell + 1];
+                                         ctx.fillRect(psx, psy, 8, 8);
+
+                                         ctx.fillStyle = "red";
+                                         ctx.fillRect(sx - 10, sy, 8, 8);
+                                         sx = sx - 10;
+
+                                         psx = sx;
+                                         psy = sy;
+
+                                         back_one = true;
+
+                                         return;
+                                     }
+
+                                     if (down_one == false) {
+                                         ctx.fillStyle = cell_color[cell];
+                                         ctx.fillRect(psx, psy, 8, 8);
+
+                                         ctx.fillStyle = "red";
+                                         ctx.fillRect(sx, sy + 10, 8, 8);
+                                         sy = sy + 10;
+
+                                         psx = sx;
+                                         psy = sy;
+                                         down_one = true;
+
+                                         return;
+                                     }
+
+                                     if (up_one == false) {
+                                         ctx.fillStyle = cell_color[cell + 40];
+                                         ctx.fillRect(psx, psy, 8, 8);
+
+                                         ctx.fillStyle = "red";
+                                         ctx.fillRect(sx, sy - 10, 8, 8);
+
+                                         sy = sy - 10;
+
+                                         psx = sx;
+                                         psy = sy;
+
+                                         back_one = false;
+                                         down_one = false;
+
+                                         tstep = 0;
+                                         cstep++;
+
+                                         if (right_edge == true) {
+                                             ctx.fillStyle = color_set[1];
+                                             ctx.fillRect(psx, psy, 8, 8);
+
+                                             sx = 1; psx = sx;
+                                             sy += 10; psy = sy;
+
+                                             right_edge = false;
+                                             left_edge = false;
+                                             color_set = [];
+                                             //cell++;
+                                             return;
+                                         }
+
+                                         color_set = [];
+                                         cell -= 1;
+
+                                         return;
+                                     }
+
+
+                                     return;
+                                 }
+
+                                 stroke = stroke || 'lightgrey';
+                                 fill = fill || 'white';
+                                 ctx.save();
+                                 ctx.strokeStyle = stroke;
+                                 ctx.fillStyle = fill;
+                                 ctx.lineWidth = 5;
+
+                                 if (sx == 1 && left_edge == false) { // if the cell is first in the row
+                                     color_set.push("white");
+                                     color_set.push(cell_color[cell]);
+                                     tstep = 2;
+                                     ctx.fillStyle = "red";
+                                     ctx.fillRect(sx, sy, 8, 8)
+                                     left_edge = true;
+                                     sx += 10;
+                                     return;
+                                 }
+
+                                 else if (sx == 411) { // if the cell is  last in the column
+                                     color_set.push("white");
+                                     tstep = 3;
+                                     right_edge = true;
+                                     return;
+                                 }
+
+                                 else { color_set.push(cell_color[cell + 1]); }
+                                 ctx.fillStyle = cell_color[cell]; // color in the previous cell
+                                 ctx.fillRect(psx, psy, 8, 8);
+
+                                 ctx.fillStyle = "red"; //color in the current cell
+                                 ctx.fillRect(sx, sy, 8, 8);
+
+                                 psx = sx;
+                                 psy = sy;
+
+                                 if (tstep++ == 2) { return; }
+
+                                 cell++;
+
+                                 sx += 10;
+
+                                 ctx.restore();
+                             } // end draw_rect_step
+
+                             function setup_step(ctx, stroke, fill) {
+                                 document.getElementById('all').style.visibility = 'hidden';
+
+                                 stroke = stroke || 'lightgrey';
+                                 fill = fill || 'white';
+                                 ctx.save();
+                                 ctx.strokeStyle = stroke;
+                                 ctx.fillStyle = fill;
+                                 ctx.lineWidth = 5;
+
+                                 ctx.fill();
+
+                                 ctx.fillStyle = 'white';
+
+                                 // initial setup
+                                 //      Store the value of every pixel as white
+                                 for (var y = 1; y < 200; y += 10) {
+                                     for (var x = 1; x < 410; x += 10) {
+                                         ctx.fillRect(x, y, 8, 8);
+                                         cell_color.push("white"); // 820 cell_color elements
+                                     }
+                                 }
+
+                                 ctx.fillStyle = "black";
+
+                                 zeroth = 20;
+                                 // fillRect(xcoord, ycoord, xlength, ylength)
+                                 ctx.fillRect(zeroth * 10 + 1, 1, 8, 8); // The 20th cell
+                                 cell_color[zeroth] = ("black");
+
+                             } // end setup_step function;
+
+                             function draw_rect2(ctx, stroke, fill) {
+
+                                 stroke = stroke || 'lightgrey';
+                                 fill = fill || 'white';
+                                 ctx.save();
+                                 ctx.strokeStyle = stroke;
+                                 ctx.fillStyle = fill;
+                                 ctx.lineWidth = 5;
+
+                                 ctx.fill();
+
+                                 ctx.fillStyle = "white";
+
+                                 // initial setup
+                                 //      Store the value of every pixel as white
+                                 for (var y = 1; y < 200; y += 10) {
+                                     for (var x = 1; x < 410; x += 10) {
+                                         ctx.fillRect(x, y, 8, 8);
+                                         cell_color.push("white"); // 820 cell_color elements
+                                     }
+                                 }
+
+                                 //ctx.stroke();
+                                 ctx.fillStyle = "black";
+
+
+                                 // ==================================================
+                                 // 0th generation
+                                 //      Set the 20th cell to black.
+
+                                 zeroth = 20;
+                                 // fillRect(xcoord, ycoord, xlength, ylength)
+                                 ctx.fillRect(zeroth * 10 + 1, 1, 8, 8); // The 20th cell
+                                 cell_color[zeroth] = ("black");
+
+                                 //cell_color[0] = ("black");
+                                 //cell_color[40] = ("black");
+                                 //cell_color[41] = ("black");
+
+                                 /*
+                                 var z = 0;
+                                 for (var y = 1; y < 190; y += 10) {
+                                     for (var x = 1; x < 410; x += 10) {
+                                         if (cell_color[z] == "black") {
+
+                                             ctx.fillStyle = "red";
+                                             ctx.fillRect(x, y, 8, 8);
+                                         }
+                                         z++;
+                                     }
+                                 }
+                                 */
+
+                                 //      To manipulate this generation, copy the above and set zeroth to the pixel number to be changed
+                                 // ==================================================
+
+                                 var cell = 0; // the cell_color array iterator
+                                 var ncell;
+                                 var pcell;
+                                 var fill;
+
+                                 var current_color
+                                 var previous_color
+                                 var next_color
+
+                                 for (var y = 1; y < 190; y += 10) { // y<399 used because the last row (399) does not need to be evaluated
+                                     //start with the second cell (x = 1 + 10)
+                                     for (var x = 1; x < 410; x += 10) {
+
+                                         // ================================ Current Grid Size is 400 * 400
+
+                                         // ================================ Check the array for the colors of the current selection
+
+                                         current_color = cell_color[cell];
+
+                                         if (x == 1) { // if cell is first in the row
+                                             previous_color = "white";
+                                         }
+                                         else { previous_color = cell_color[cell - 1]; }
+
+                                         if (x == 401) { // if cell is  last in the row
+                                             next_color = "white";
+                                         }
+                                         else { next_color = cell_color[cell + 1]; }
+
+                                         // ================================ end cell selection check
+
+
+
+                                         // ================================ RULES
+
+                                         // b b b
+                                         //   b
+
+                                         if (previous_color == "black" &&
+                                             current_color == "black" &&
+                                             next_color == "black") {
+
+                                             cell_color[cell + 41] = ("black");
+                                             fill = "black";
+                                         }
+
+                                         // b b w
+                                         //   w
+
+                                         else if (previous_color == "black" &&
+                                             current_color == "black" &&
+                                             next_color == "white") {
+
+                                             cell_color[cell + 41] = ("white");
+                                             fill = "white";
+                                         }
+
+                                         // b w b
+                                         //   w
+
+                                         else if (previous_color == "black" &&
+                                             current_color == "white" &&
+                                             next_color == "black") {
+
+                                             cell_color[cell + 41] = ("white");
+                                             fill = "white";
+                                         }
+
+                                         // b w w
+                                         //   b
+
+                                         else if (previous_color == "black" &&
+                                             current_color == "white" &&
+                                             next_color == "white") {
+
+                                             cell_color[cell + 41] = ("black");
+                                             fill = "black";
+                                         }
+
+                                         // w b b
+                                         //   b
+
+                                         else if (previous_color == "white" &&
+                                             current_color == "black" &&
+                                             next_color == "black") {
+
+                                             cell_color[cell + 41] = ("white");
+                                             fill = "white";
+                                         }
+
+                                         // w b w
+                                         //   b
+
+                                         else if (previous_color == "white" &&
+                                             current_color == "black" &&
+                                             next_color == "white") {
+
+                                             cell_color[cell + 41] = ("black");
+                                             fill = "black";
+                                         }
+
+                                         // w w b
+                                         //   b
+
+                                         else if (previous_color == "white" &&
+                                             current_color == "white" &&
+                                             next_color == "black") {
+
+                                             cell_color[cell + 41] = ("black");
+                                             fill = "black";
+                                         }
+
+                                         // w w w
+                                         //   w
+                                         else if (previous_color == "white" &&
+                                             current_color == "white" &&
+                                             next_color == "white") {
+
+                                             cell_color[cell + 41] = ("white");
+                                             fill = "white";
+                                         }
+                                         // ================================ END RULES
+
+                                         //setTimeout(fillRectFunct, 1000, ctx, x, y);
+
+                                         ctx.fillRect(x, y + 10, 8, 8);
+
+                                         cell++; // increment the cell number to be evaluated
+                                     }
+                                 }
+
+                                 ctx.restore();
+                             }
+                         </script>
+                     </body>
+
+                     
+</html>
