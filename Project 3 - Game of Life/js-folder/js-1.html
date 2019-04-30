@@ -12,6 +12,7 @@
 
 
                          <canvas id="grid" width="410" height="200"></canvas>
+
                          <button id="all" onclick="draw_rect(context)">END RESULT</button>
                          <button id="step" onclick="draw_rect_step(context)">Step Through</button>
 
@@ -114,6 +115,8 @@
                                      return;
                                  }
 
+
+                                 // width of canvas is 410 pixels wide. pixel 411 is out of bounds
                                  else if (sx == 411) { // if the cell is  last in the column
                                      //alert("right edge");
                                      alert(cell_color[cell] + " " + sx + " " + sy)
@@ -209,47 +212,64 @@
                              //
                              //-----------------------------------------------------------------------
                              function evaluate_neighbors(ctx, stroke, fill) {
+
                                  neighbors_alive = 0;
 
                                  // IMPORTANT ~ consider whether the upper neighbors are on the grid
+                                    // top row neighbors out of bounds when sy < 1
 
                                  // IMPORTANT ~ consider whether the left_most neighbors are on the grid
+                                    // left column out of bounds when sx < 1
 
                                  // IMPORTANT ~ consider whether the right_most neighbors are on the grid
+                                    // right column out of bounds when sx > 401
 
                                  // IMPORTANT ~ consider whether the lower neighbors are on the grid
+                                    // bottom row out of bounds when sy > 191
 
 
                                  // neighbor U
-                                 if (cell - 41 < 0) { }
+                                 if (cell - 41 < 0 &&
+                                     (sy - 10) < 1) { }
                                  else if (cell_color[cell - 41] == "black") { neighbors_alive++ }
 
                                  // neighbor UL
-                                 if (cell - 42 < 0) { }
+                                 if (cell - 42 < 0 &&
+                                     (sy - 10) < 1 &&
+                                     (sx - 10) < 1) { }
                                  else if (cell_color[cell - 42] == "black") { neighbors_alive++ }
 
                                  // neighbor UR
-                                 if (cell - 40 < 0) { }
+                                 if (cell - 40 < 0 &&
+                                     (sy - 10) < 1 &&
+                                     (sx + 10) > 401) { }
                                  else if (cell_color[cell - 40] == "black") { neighbors_alive++ }
 
                                  // neighbor R
-                                 if (cell + 1 > 820) { }
+                                 if (cell + 1 > 820 &&
+                                     (sx + 10) > 401) { }
                                  else if (cell_color[cell + 1] == "black") { neighbors_alive++ }
 
                                  // neighbor L
-                                 if (cell - 1 < 0) { }
+                                 if (cell - 1 < 0 &&
+                                     (sx - 10) < 1) { }
                                  else if (cell_color[cell - 1] == "black") { neighbors_alive++ }
 
                                  // neighbor D
-                                 if (cell + 41 > 820) { }
+                                 if (cell + 41 > 820 &&
+                                     (sy + 10) > 191) { }
                                  else if (cell_color[cell + 41] == "black") { neighbors_alive++ }
 
                                  // neighbor DL
-                                 if (cell + 40 > 820) { }
+                                 if (cell + 40 > 820 &&
+                                     (sy + 10) > 191 &&
+                                     (sx - 10) < 1) { }
                                  else if (cell_color[cell + 40] == "black") { neighbors_alive++ }
 
                                  // neighbor DR
-                                 if (cell + 42 > 820) { }
+                                 if (cell + 42 > 820 &&
+                                     (sy + 10) > 191 &&
+                                     (sx + 10) > 401) { }
                                  else if (cell_color[cell + 42] == "black") { neighbors_alive++ }
                              } // end evaluate_neighbors function
 
