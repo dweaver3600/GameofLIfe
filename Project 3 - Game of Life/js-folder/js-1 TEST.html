@@ -60,30 +60,21 @@
         var psy = sy;          // temporary previous sript y variable
 
         var cell = 0;          // current cell variable
-        var cstep = 0;         // current step variable                                ~ unused
-        var tstep = 0;         // current Turing machine step variable                 ~ unused
-
-        var hidden_color = "white"; // the color hidden by the head symbol (red marker). used to remember what the color of the current cell is                            ~ unused
 
         var cell_color = [];   // an array of all the colors on the grid
 
         var new_cell_color = [];
 
-        var color_set = [];    // an array (of max length 3) that holds the last three colors passed over by the TM head. used to evaluate the current pattern             ~ unused
-        var pattern_fill = "white";    // the variable where the pattern evaluation is stored as a color. ex: b, w, w -> patternfill = white ~ unused
-
         var previous_color;    // the color of the cell before the color of the current cell
         var current_color;     // the color of the current cell
         var next_color;        // the color of the cell after the color of the current cell
 
-        var new_color = true;  // ~ unused
         var set_up = true;     // a boolean that stores whether or not the set up function was completed and run at once
 
         var left_edge = false;     // a boolean that stores whether or not the leftmost cell has been evaluated
         var right_edge = false;    // a boolean that stores whether or not the rightmost cell has been evaluated
 
         var neighbors_alive = 0;   // a variable that keeps track of how many alive neighbors the current cell has
-        var neighbors_array = [];
 
         // the following function is the main function that is run when
         //
@@ -101,32 +92,10 @@
             //
             //~~~~~~~~~~~~~~~~~~~~~
 
-            //if (sx == 1 && left_edge == false) { // if the cell is first in the row
-
-            //    // evaluate left edge
-            //    evaluate_neighbors();
-
-            //    ctx.fillStyle = cell_color[cell];
-            //    ctx.fillRect(psx, psy, 8, 8);
-
-            //    sx += 10;
-            //    cell++;
-
-            //    ctx.fillStyle = "red";
-            //    ctx.fillRect(sx, sy, 8, 8)
-
-            //    psx = sx;
-            //    psy = sy;
-
-            //    left_edge = true;
-
-            //    return;
-            //}
-
-
             // width of canvas is 410 pixels wide. pixel 411 is out of bounds
             if (sx + 10 > 21) { // if the cell is  last in the column
 
+                // if the head is at the last column of the last row
                 if (sy == 21) {
 
                     evaluate_neighbors()
@@ -150,8 +119,6 @@
 
                     right_edge = false;
                     left_edge = false;
-
-                    
 
                     return;
                 }
@@ -361,7 +328,7 @@
             //    alert(new_cell_color[temp_cell++])
             //}
 
-            temp_cell = 0
+            // temp_cell = 0
 
             for (var y = 1; y < 30; y += 10) {
                 for (var x = 1; x < 30; x += 10) {
