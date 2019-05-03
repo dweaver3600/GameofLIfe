@@ -1,302 +1,455 @@
-<!doctype html><html><head>
+<!doctype html>
+<html>
+<head>
     <title>This is an HTML canvas</title>
     <link rel="stylesheet" href="../assets/styles.css">
 
     <script type="text/javascript" src="../assets/draw-stuff - END RESULT.js"></script>
 </head>
-                     <body>
-                         <h1>Conway's Game of Life</h1>
-                         <h4>Time-stamp: <2019-04-21 20:11:03 DAW></h4>
-                         <p id="parray"></p>
+<body>
+    <h1>Conway's Game of Life</h1>
+    <h4>Time-stamp: <2019-04-21 20:11:03 DAW></h4>
+    <p id="parray"></p>
 
 
 
-                         <canvas id="grid" width="410" height="200"></canvas>
+    <canvas id="grid" width="410" height="200"></canvas>
+    <button id="all" onclick="end_result_button(context)">END RESULT</button>
+    <button id="step" onclick="draw_rect_step(context)">Step Through</button>
 
-                         <button id="all" onclick="draw_rect(context)">END RESULT</button>
-                         <button id="step" onclick="draw_rect_step(context)">Step Through</button>
+    <script>
+        // after "Introducing JavaScript Game Development" by Stuart.
 
-                         <script>
-                             // after "Introducing JavaScript Game Development" by Stuart.
+        // =====================================================  draw_title ====
+        // Draw filled rect.
+        function draw_title(context) {
+            context.save();
+            context.fillStyle = 'lightgrey';
+            context.font = "30px Arial";
+            context.fillText("Grid", 150, 140);
+            context.restore();
+        }
+        // =====================================================  Main ====
+        var canvas = document.getElementById("grid");
+        var context = canvas.getContext("2d");
 
-                             // =====================================================  draw_title ====
-                             // Draw filled rect.
-                             function draw_title(context) {
-                                 context.save();
-                                 context.fillStyle = 'lightgrey';
-                                 context.font = "30px Arial";
-                                 context.fillText("Grid", 150, 140);
-                                 context.restore();
-                             }
-                             // =====================================================  Main ====
-                             var canvas = document.getElementById("grid");
-                             var context = canvas.getContext("2d");
+        //draw_rect(context); // a gray rectangle
 
-                             //draw_rect(context); // a gray rectangle
+        // Draw a grid
+        //draw_grid( context, 10, 50, 'white', 'yellow' );
 
-                             // Draw a grid
-                             //draw_grid( context, 10, 50, 'white', 'yellow' );
+        //draw_title( context );  The word "Grid"
 
-                             //draw_title( context );  The word "Grid"
+        //context.fillStyle = "red";
 
-                             //context.fillStyle = "red";
+        //context.putImageData(imgData, 0, 0);
+    </script>
 
-                             //context.putImageData(imgData, 0, 0);
-                         </script>
 
-                        
-                         <script>
-                             // -----------------------------------------------------
-                             //
-                             // This scrip contains all the data for the Game of Life
-                             //
-                             // -----------------------------------------------------
+    <script>
+        // -----------------------------------------------------
+        //
+        // This scrip contains all the data for the Game of Life
+        //
+        // -----------------------------------------------------
 
 
-                             // *~~~~~~~~~~~*
-                             // VARIABLES
-                             // *~~~~~~~~~~~*
+        // *~~~~~~~~~~~*
+        // VARIABLES
+        // *~~~~~~~~~~~*
 
-                             var sx = 1;            // script x variable - used to shift head by grid column (every column is 10 pixels wide)
-                             var psx = sx;          // temporary previous script x variable
+        var sx = 1;            // script x variable - used to shift head by grid column (every column is 10 pixels wide)
+        var psx = sx;          // temporary previous script x variable
 
-                             var sy = 1;            // script y variable - used to shift head by grid row (every row is 10 pixels wide)
-                             var psy = sy;          // temporary previous sript y variable
+        var sy = 1;            // script y variable - used to shift head by grid row (every row is 10 pixels wide)
+        var psy = sy;          // temporary previous sript y variable
 
-                             var cell = 0;          // current cell variable
-                             var cstep = 0;         // current step variable                                ~ unused
-                             var tstep = 0;         // current Turing machine step variable                 ~ unused
+        var cell = 0;          // current cell variable
+        var cstep = 0;         // current step variable                                ~ unused
+        var tstep = 0;         // current Turing machine step variable                 ~ unused
 
-                             var hidden_color = "white"; // the color hidden by the head symbol (red marker). used to remember what the color of the current cell is                            ~ unused
+        var hidden_color = "white"; // the color hidden by the head symbol (red marker). used to remember what the color of the current cell is                            ~ unused
 
-                             var cell_color = [];   // an array of all the colors on the grid
-                             var color_set = [];    // an array (of max length 3) that holds the last three colors passed over by the TM head. used to evaluate the current pattern             ~ unused
-                             var pattern_fill = "white";    // the variable where the pattern evaluation is stored as a color. ex: b, w, w -> patternfill = white ~ unused
+        var cell_color = [];   // an array of all the colors on the grid
 
-                             var previous_color;    // the color of the cell before the color of the current cell
-                             var current_color;     // the color of the current cell
-                             var next_color;        // the color of the cell after the color of the current cell
+        var new_cell_color = [];
 
-                             var new_color = true;  // ~ unused
-                             var set_up = true;     // a boolean that stores whether or not the set up function was completed and run at once
+        var color_set = [];    // an array (of max length 3) that holds the last three colors passed over by the TM head. used to evaluate the current pattern             ~ unused
+        var pattern_fill = "white";    // the variable where the pattern evaluation is stored as a color. ex: b, w, w -> patternfill = white ~ unused
 
-                             var left_edge = false;     // a boolean that stores whether or not the leftmost cell has been evaluated
-                             var right_edge = false;    // a boolean that stores whether or not the rightmost cell has been evaluated
+        var previous_color;    // the color of the cell before the color of the current cell
+        var current_color;     // the color of the current cell
+        var next_color;        // the color of the cell after the color of the current cell
 
-                             var neighbors_alive = 0;   // a variable that keeps track of how many alive neighbors the current cell has
+        var new_color = true;  // ~ unused
+        var set_up = true;     // a boolean that stores whether or not the set up function was completed and run at once
 
-                             // the following function is the main function that is run when
-                             //
-                             //
+        var left_edge = false;     // a boolean that stores whether or not the leftmost cell has been evaluated
+        var right_edge = false;    // a boolean that stores whether or not the rightmost cell has been evaluated
 
-                             function draw_rect_step(ctx, stroke, fill) {
+        var neighbors_alive = 0;   // a variable that keeps track of how many alive neighbors the current cell has
 
-                                 if (set_up == true) { setup_step(ctx); set_up = false; }
+        // the following function is the main function that is run when
+        //
+        //
 
-                                 // ~~~~~pseudocode~~~~~
-                                 //
-                                 // evaluate the  8 neighbors
-                                 // color current cell the color of pattern fill
-                                 // move head over
-                                 //
-                                 //~~~~~~~~~~~~~~~~~~~~~
+        function draw_rect_step(ctx, stroke, fill) {
 
-                                 if (sx == 1 && left_edge == false) { // if the cell is first in the row
-                                     //alert("left edge")
-                                     alert(cell_color[cell] + " " + sx + " " + sy)
+            if (set_up == true) { setup_step(ctx); set_up = false; return; }
 
-                                     // evaluate left edge
+            // ~~~~~pseudocode~~~~~
+            //
+            // evaluate the neighbors
+            // color current cell the color of pattern fill
+            // move head over
+            //
+            //~~~~~~~~~~~~~~~~~~~~~
 
-                                     ctx.fillStyle = "red";
-                                     ctx.fillRect(sx, sy, 8, 8);
-                                     left_edge = true;
-                                     sx += 10;
+            if (sx + 10 > 401) { // if the cell is  last in the column
+                //alert("right edge");
 
-                                     return;
-                                 }
+                if (sy == 191) {
 
+                    evaluate_neighbors()
 
-                                 // width of canvas is 410 pixels wide. pixel 411 is out of bounds
-                                 else if (sx == 411) { // if the cell is  last in the column
-                                     //alert("right edge");
-                                     alert(cell_color[cell] + " " + sx + " " + sy)
+                    ctx.fillStyle = cell_color[cell];
+                    ctx.fillRect(psx, psy, 8, 8);
 
-                                     ctx.fillStyle = cell_color[cell];
-                                     ctx.fillRect(psx, psy, 8, 8);
+                    sx = 1;
+                    sy = 1;
+                    cell = 0;
 
-                                     sx = 1;
-                                     sy += 10;
-                                     cell++;
+                    color_all(ctx)
 
-                                     ctx.fillStyle = "red";
-                                     ctx.fillRect(sx, sy, 8, 8)
+                    //for (var x = 0; x < cell_color.length - 1; x++) { alert(cell_color[x]) }
 
-                                     psx = sx;
-                                     psy = sy;
+                    ctx.fillStyle = "red";
+                    ctx.fillRect(sx, sy, 8, 8)
 
-                                     right_edge = false;
-                                     left_edge = false;
+                    psx = sx;
+                    psy = sy;
 
-                                     return;
-                                 }
+                    right_edge = false;
+                    left_edge = false;
 
-                                 else { /* not leftmost or rightmost edge */ }
+                    return;
+                }
 
-                                 ctx.fillStyle = cell_color[cell]; // color in the current cell
-                                 ctx.fillRect(psx, psy, 8, 8);
+                //evaluate right edge
+                evaluate_neighbors();
 
-                                 ctx.fillStyle = "red"; //color in the current cell
-                                 ctx.fillRect(sx, sy, 8, 8);
+                ctx.fillStyle = cell_color[cell];
+                ctx.fillRect(psx, psy, 8, 8);
 
-                                 psx = sx;
-                                 psy = sy;
+                sx = 1;
+                sy += 10;
+                cell++;
 
-                                 cell++;
+                ctx.fillStyle = "red";
+                ctx.fillRect(sx, sy, 8, 8)
 
-                                 sx += 10;
+                psx = sx;
+                psy = sy;
 
-                                 ctx.restore();
-                             } // end draw_rect_step
+                right_edge = false;
+                left_edge = false;
 
+                return;
+            }
 
-                             // -----------------------------------------------------
-                             //
-                             // USE THE SETUP_STEP FUNCTION TO INITIATE THE SEED (GENERATION 0) 
-                             //
-                             // -----------------------------------------------------
-                             function setup_step(ctx, stroke, fill) {
-                                 document.getElementById('all').style.visibility = 'hidden';
+            else { /* not leftmost or rightmost edge */ }
 
-                                 stroke = stroke || 'lightgrey';
-                                 fill = fill || 'white';
-                                 ctx.save();
-                                 ctx.strokeStyle = stroke;
-                                 ctx.fillStyle = fill;
-                                 ctx.lineWidth = 5;
+            evaluate_neighbors();
 
-                                 ctx.fill();
+            ctx.fillStyle = cell_color[cell]; // color in the current cell
+            ctx.fillRect(sx, sy, 8, 8);
 
-                                 ctx.fillStyle = 'white';
+            sx += 10;
 
-                                 // initial setup
-                                 //      Store the value of every pixel as white
-                                 for (var y = 1; y < 200; y += 10) {
-                                     for (var x = 1; x < 410; x += 10) {
-                                         ctx.fillRect(x, y, 8, 8);
-                                         cell_color.push("white"); // 820 cell_color elements
-                                     }
-                                 }
+            ctx.fillStyle = "red"; //color in the current cell
+            ctx.fillRect(sx, sy, 8, 8);
 
-                                 ctx.fillStyle = "black";
+            psx = sx;
+            psy = sy;
 
-                                 zeroth = 20;
-                                 // fillRect(xcoord, ycoord, xlength, ylength)
-                                 ctx.fillRect(zeroth * 10 + 1, 1, 8, 8); // The 20th cell
-                                 cell_color[zeroth] = ("black");
+            cell++;
 
-                             } // end setup_step function;
+            ctx.restore();
+        } // end draw_rect_step
 
 
-                             // The following function evaluates the 8 neighbors of the current cell
-                             //
-                             // + - - - + - - - + - - - +
-                             // |nbor UL|nbor U |nbor UR|
-                             // |   -42 |   -41 |  -40  |
-                             // + - - - + - - - + - - - +
-                             // |nbor L |current|nbor R |
-                             // |   -1  |  cell |   +1  |
-                             // + - - - + - - - + - - - +
-                             // |nbor DL|nbor D |nbor DR|
-                             // |   +40 |   +41 |   +42 |
-                             // + - - - + - - - + - - - +
-                             //
-                             //-----------------------------------------------------------------------
-                             function evaluate_neighbors(ctx, stroke, fill) {
+        // -----------------------------------------------------
+        //
+        // USE THE SETUP_STEP FUNCTION TO INITIATE THE SEED (GENERATION 0)
+        //
+        // -----------------------------------------------------
+        function setup_step(ctx, stroke, fill) {
+            //document.getElementById('all').style.visibility = 'hidden';
 
-                                 neighbors_alive = 0;
+            stroke = stroke || 'lightgrey';
+            fill = fill || 'white';
+            ctx.save();
+            ctx.strokeStyle = stroke;
+            ctx.fillStyle = fill;
+            ctx.lineWidth = 5;
 
-                                 // IMPORTANT ~ consider whether the upper neighbors are on the grid
-                                    // top row neighbors out of bounds when sy < 1
+            ctx.fill();
 
-                                 // IMPORTANT ~ consider whether the left_most neighbors are on the grid
-                                    // left column out of bounds when sx < 1
+            ctx.fillStyle = 'white';
 
-                                 // IMPORTANT ~ consider whether the right_most neighbors are on the grid
-                                    // right column out of bounds when sx > 401
+            // initial setup
+            //      Store the value of every pixel as white
+            for (var y = 1; y < 201; y += 10) {
+                for (var x = 1; x < 411; x += 10) {
+                    ctx.fillRect(x, y, 8, 8);
+                    cell_color.push("white"); // 820 cell_color elements
+                }
+            }
 
-                                 // IMPORTANT ~ consider whether the lower neighbors are on the grid
-                                    // bottom row out of bounds when sy > 191
+            ctx.fillStyle = "red";
+            ctx.fillRect(1, 1, 8, 8); // The 20th cell
 
+            ctx.fillStyle = "black";
 
-                                 // neighbor U
-                                 if (cell - 41 < 0 &&
-                                     (sy - 10) < 1) { }
-                                 else if (cell_color[cell - 41] == "black") { neighbors_alive++ }
+            zeroth = 1;
+            for (var x = 0; x < 20; x++) {
+                // fillRect(xcoord, ycoord, xlength, ylength)
+                if (x % 6 == 0) { continue; }
+                ctx.fillRect(zeroth * 10 + 1, 1 + 10 * x, 8, 8); // The 20th cell
+                cell_color[zeroth + 41 * x] = ("black");
+            }
 
-                                 // neighbor UL
-                                 if (cell - 42 < 0 &&
-                                     (sy - 10) < 1 &&
-                                     (sx - 10) < 1) { }
-                                 else if (cell_color[cell - 42] == "black") { neighbors_alive++ }
+            zeroth = 40;
+            for (var x = 0; x < 20; x++) {
+                // fillRect(xcoord, ycoord, xlength, ylength)
+                ctx.fillRect(zeroth * 10 + 1, 1 + 10 * x, 8, 8); // The 20th cell
+                cell_color[zeroth + 41 * x] = ("black");
+            }
 
-                                 // neighbor UR
-                                 if (cell - 40 < 0 &&
-                                     (sy - 10) < 1 &&
-                                     (sx + 10) > 401) { }
-                                 else if (cell_color[cell - 40] == "black") { neighbors_alive++ }
+            zeroth = 11;
+            for (var x = 0; x < 20; x++) {
+                if ((x + 2) % 4 == 0) { continue; }
+                // fillRect(xcoord, ycoord, xlength, ylength)
+                ctx.fillRect(zeroth * 10 + 1, 1 + 10 * x, 8, 8); // The 20th cell
+                cell_color[zeroth + 41 * x] = ("black");
+            }
 
-                                 // neighbor R
-                                 if (cell + 1 > 820 &&
-                                     (sx + 10) > 401) { }
-                                 else if (cell_color[cell + 1] == "black") { neighbors_alive++ }
+            zeroth = 26;
+            for (var x = 0; x < 20; x++) {
+                if ((x + 4) % 6 == 0) { continue; }
+                // fillRect(xcoord, ycoord, xlength, ylength)
+                ctx.fillRect(zeroth * 10 + 1, 1 + 10 * x, 8, 8); // The 20th cell
+                cell_color[zeroth + 41 * x] = ("black");
+            }
 
-                                 // neighbor L
-                                 if (cell - 1 < 0 &&
-                                     (sx - 10) < 1) { }
-                                 else if (cell_color[cell - 1] == "black") { neighbors_alive++ }
 
-                                 // neighbor D
-                                 if (cell + 41 > 820 &&
-                                     (sy + 10) > 191) { }
-                                 else if (cell_color[cell + 41] == "black") { neighbors_alive++ }
+            //alert("show black cells")
+            //for (var x = 0; x < 41 * 20; x++) {
+            //    if (cell_color[x] == "black") {
+            //        alert(cell_color[x] + " " + x)
+            //    }
+            //}
 
-                                 // neighbor DL
-                                 if (cell + 40 > 820 &&
-                                     (sy + 10) > 191 &&
-                                     (sx - 10) < 1) { }
-                                 else if (cell_color[cell + 40] == "black") { neighbors_alive++ }
+            ctx.fillStyle = 'blue';
+            temp_x = 1;
+            temp_y = 1;
 
-                                 // neighbor DR
-                                 if (cell + 42 > 820 &&
-                                     (sy + 10) > 191 &&
-                                     (sx + 10) > 401) { }
-                                 else if (cell_color[cell + 42] == "black") { neighbors_alive++ }
-                             } // end evaluate_neighbors function
+            //for (var x = 0; x < 41 * 20; x++) {
+            //    if (cell_color[x] == "black") {
+            //        alert(x + " is black")
+            //        ctx.fillRect(temp_x, temp_y, 8, 8);
+            //    }
+            //    temp_x += 10;
+            //    if (temp_x > 410) { temp_x = 1; temp_y += 10; }
+            //}
 
+        } // end setup_step function;
 
-                             // The color function evaulates what the color of the cell will be based on how many
-                             // alive neighbors there are
-                             function color(ctx, stroke, fill) {
 
-                                 // kill cell by underpopulation  (alive < 2) or overpopulation (alive > 3)
-                                 if (neighbors_alive < 2 || neighbors_alive > 3) { pattern_fill == "white"; }
+        // The following function evaluates the 8 neighbors of the current cell
+        //
+        // + - - - + - - - + - - - +
+        // |nbor UL|nbor U |nbor UR|
+        // |   -42 |   -41 |  -40  |
+        // + - - - + - - - + - - - +
+        // |nbor L |current|nbor R |
+        // |   -1  |  cell |   +1  |
+        // + - - - + - - - + - - - +
+        // |nbor DL|nbor D |nbor DR|
+        // |   +40 |   +41 |   +42 |
+        // + - - - + - - - + - - - +
+        //
+        //-----------------------------------------------------------------------
+        function evaluate_neighbors(ctx, stroke, fill) {
+            neighbors_alive = 0;
 
-                                 // if the cell is alive and it has two or three alive neighbors, keep alive
-                                 else if ((neighbors_alive == 2 || neighbors_alive == 3) && cell_color[cell] == "black") { pattern_fill == "black" }
+            // IMPORTANT ~ consider whether the upper neighbors are on the grid
 
-                                 // birth a cell if the current cell is dead and the number of neighbors alive is 3
-                                 else if (neighbors_alive == 3 && cell_color[cell] == "white") {
-                                     pattern_fill == "black";
-                                 }
-                             }
+            // IMPORTANT ~ consider whether the left_most neighbors are on the grid
 
-                             // -----------------------------------------------------
-                             //
-                             // End Game of Life Script
-                             //
-                             // -----------------------------------------------------
-                         </script>
-                     </body>
+            // IMPORTANT ~ consider whether the right_most neighbors are on the grid
 
-                     
+            // IMPORTANT ~ consider whether the lower neighbors are on the grid
+
+
+            // neighbor U
+            if (cell - 41 < 0 ||
+                sy - 10 < 1) { }
+            else if (cell_color[cell - 41] == "black") { neighbors_alive++ }
+
+            // neighbor UL
+            if (cell - 42 < 0 ||
+                (sy - 10) < 1 ||
+                (sx - 10) < 1) { }
+            else if (cell_color[cell - 42] == "black") { neighbors_alive++ }
+
+            // neighbor UR
+            if (cell - 40 < 0 ||
+                (sy - 10) < 1 ||
+                (sx + 10) > 410) { }
+            else if (cell_color[cell - 40] == "black") { neighbors_alive++ }
+
+            // neighbor R
+            if (cell + 1 > 820 ||
+                (sx + 10) > 410) { }
+            else if (cell_color[cell + 1] == "black") { neighbors_alive++ }
+
+            // neighbor L
+            if (cell - 1 < 0 ||
+                (sx - 10) < 1) { }
+            else if (cell_color[cell - 1] == "black") { neighbors_alive++ }
+
+            // neighbor D
+            if (cell + 41 > 820 ||
+                (sy + 10) > 200) { }
+            else if (cell_color[cell + 41] == "black") { neighbors_alive++ }
+
+            // neighbor DL
+            if (cell + 40 > 820 ||
+                (sy + 10) > 200 ||
+                (sx - 10) < 1) { }
+            else if (cell_color[cell + 40] == "black") { neighbors_alive++ }
+
+            // neighbor DR
+            if (cell + 42 > 820 ||
+                (sy + 10) > 200 ||
+                (sx + 10) > 410) { }
+            else if (cell_color[cell + 42] == "black") { neighbors_alive++ }
+
+            //if (neighbors_alive > 0) alert(cell + " " + neighbors_alive)
+
+            color(ctx)
+        } // end evaluate_neighbors function
+
+
+        // The color function evaulates what the color of the cell will be based on how many
+        // alive neighbors there are
+        function color(ctx, stroke, fill) {
+
+            // kill cell by underpopulation  (alive < 2) or overpopulation (alive > 3)
+            if (neighbors_alive < 2 || neighbors_alive > 3) { new_cell_color[cell] = "white"; }
+
+            // if the cell is alive and it has two or three alive neighbors, keep alive
+            else if ((neighbors_alive == 2 || neighbors_alive == 3) && cell_color[cell] == "black") { new_cell_color[cell] = "black" }
+
+            // birth a cell if the current cell is dead and the number of neighbors alive is 3
+            else if (neighbors_alive == 3 && cell_color[cell] == "white") { new_cell_color[cell] = "black"; }
+
+            else { new_cell_color[cell] = cell_color[cell] }
+
+            //if (new_cell_color[cell] == "black") alert(cell + " is black")
+        }
+
+        function color_all(ctx, stroke, fill) {
+            var temp_cell = 0;
+
+            //alert("color_all function")
+            for (var y = 1; y < 200; y += 10) {
+                for (var x = 1; x < 410; x += 10) {
+                    //if (new_cell_color[temp_cell] == "black") { alert("new_cell_color " + temp_cell + " black") }
+                    ctx.fillStyle = new_cell_color[temp_cell]
+                    ctx.fillRect(x, y, 8, 8);
+                    temp_cell++;
+                }
+            }
+
+            cell_color = [];
+            cell_color = new_cell_color.slice();
+
+            new_cell_color = [];
+        }
+
+        function end_result_button(ctx, stroke, fill) {
+            while (cell < 41 * 20) {
+
+                if (set_up == true) { setup_step(ctx); set_up = false; return; }
+
+                if (sx + 10 > 401) { // if the cell is  last in the column
+
+                    // if the head is at the last column of the last row
+                    if (sy == 191) {
+                        evaluate_neighbors()
+
+                        ctx.fillStyle = cell_color[cell];
+                        ctx.fillRect(psx, psy, 8, 8);
+
+                        sx = 1;
+                        sy = 1;
+                        cell = 0;
+
+                        color_all(ctx)
+
+                        psx = sx;
+                        psy = sy;
+
+                        right_edge = false;
+                        left_edge = false;
+
+                        return;
+                    }
+
+                    //evaluate right edge
+                    evaluate_neighbors();
+
+                    ctx.fillStyle = cell_color[cell];
+                    ctx.fillRect(psx, psy, 8, 8);
+
+                    sx = 1;
+                    sy += 10;
+                    cell++;
+
+                    psx = sx;
+                    psy = sy;
+
+                    right_edge = false;
+                    left_edge = false;
+                }
+
+                else { /* not leftmost or rightmost edge */ }
+
+                evaluate_neighbors();
+
+                ctx.fillStyle = cell_color[cell]; // color in the current cell
+                ctx.fillRect(sx, sy, 8, 8);
+
+                sx += 10;
+
+                psx = sx;
+                psy = sy;
+
+                cell++;
+
+                ctx.restore();
+            }
+        } // end end_result_button function
+
+        // -----------------------------------------------------
+        //
+        // End Game of Life Script
+        //
+        // -----------------------------------------------------
+    </script>
+</body>
+
+
 </html>
