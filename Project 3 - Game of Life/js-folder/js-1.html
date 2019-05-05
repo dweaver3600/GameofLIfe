@@ -158,80 +158,74 @@
 
                              // -----------------------------------------------------
                              //
-                             // USE THE SETUP_STEP FUNCTION TO INITIATE THE SEED (GENERATION 0) 
+                             // USE THE another_gen FUNCTION TO INITIATE THE SEED (GENERATION 0) 
                              //
                              // -----------------------------------------------------
-                             function setup_step(ctx, stroke, fill) {
-                                 document.getElementById('all').style.visibility = 'hidden';
-
-                                 stroke = stroke || 'lightgrey';
-                                 fill = fill || 'white';
-                                 ctx.save();
-                                 ctx.strokeStyle = stroke;
-                                 ctx.fillStyle = fill;
-                                 ctx.lineWidth = 5;
-
-                                 ctx.fill();
-
-                                 ctx.fillStyle = 'white';
-
-                                 // initial setup
-                                 //      Store the value of every pixel as white
-                                 for (var y = 1; y < 200; y += 10) {
-                                     for (var x = 1; x < 410; x += 10) {
-                                         ctx.fillRect(x, y, 8, 8);
-                                         cell_color.push("white"); // 820 cell_color elements
-                                     }
-                                 }
-                               
-                                 ctx.fillStyle = "black";
-///////////////////////////////////////////////////////////////////////////////////////////////
-                                 // setup to color pixels black
-                                 for (var y = 1; y < 201; y += 10) {
-                                    for (var x = 1; x < 411; x += 10) {
-                                        ctx.fillRect(1, 1, 8, 8);
-                                        cell_color.push("black");
-                                      }
-                                  }
-///////////////////////////////////////////////////////////////////////////////////////////////
-                                 zeroth = 20;
-                                 // fillRect(xcoord, ycoord, xlength, ylength)
-                                 ctx.fillRect(zeroth * 10 + 1, 1, 8, 8); // The 20th cell
-                                 cell_color[zeroth] = ("black");
-/////////////////////////////////////////////////////////////////////////////////
-                                 
-                                 zeroth = 1;
-                                 // for for (var x = 1; x < 411; x++) {
-                                 ctx.fillRect(zeroth * 10 + 1, 1, 1, 1); // Cell 1
-                                 cell_color[zeroth] = ("black");
-
-//////////////////////////////////////////////////////////////////////////////////
-
-                                 
-                                 //------------------------
-
-                                  zeroth = 1 + 3 * 0;
-
-                                // fillRect(xcoord, ycoord, xlength, ylength)
-
-                                ctx.fillRect(1 * 10 + 1, 1, 8, 8); // The 20th cell
-                                cell_color[zeroth] = ("black");
-                                zeroth = 1 + 3 * 1;
-
-                                // fillRect(xcoord, ycoord, xlength, ylength)
-
-                                ctx.fillRect(1 * 10 + 1, 11, 8, 8); // The 20th cell
-                                cell_color[zeroth] = ("black");
-                                zeroth = 1 + 3 * 2;
-
-                                // fillRect(xcoord, ycoord, xlength, ylength)
-
-                                ctx.fillRect(1 * 10 + 1, 21, 8, 8); // The 20th cell
-                                cell_color[zeroth] = ("black");
-
-                                //------------------------
-                                 
-                             } // end setup_step function;
+                             
+            function another_gen(ctx, stroke, fill) 
+            {
+            //document.getElementById('all').style.visibility = 'hidden';
+            stroke = stroke || 'lightgrey';
+            fill = fill || 'white';
+            ctx.save();
+            ctx.strokeStyle = stroke;
+            ctx.fillStyle = fill;
+            ctx.lineWidth = 5;
+            ctx.fill();
+            ctx.fillStyle = 'white';
+            // initial setup
+            //      Store the value of every pixel as white
+            for (var y = 1 + y_offset; y < 201 + y_offset; y += 10) {
+                for (var x = 1; x < 411; x += 10) {
+                    ctx.fillRect(x, y, 8, 8);
+                    cell_color.push("white"); // 820 cell_color elements
+                }
+            }
+            // create 3x3
+            for (var y = 1; y < 31; y += 10) {
+                for (var x = 1 + 19 * 10; x < 1 + 19 * 10 + 30; x += 10) {
+                    ctx.fillRect(x, y, 8, 8);
+                }
+            }
+            ctx.fillRect(220, 0, 190, 40)
+            ctx.fillRect(0, 0, 190, 40) // Left
+            ctx.fillRect(0, 30, 410, 10) // separator
+            ctx.fillStyle = "red";
+            ctx.fillRect(1 + 200, 1 + 10, 8, 8); // The middle of 3v3 grid
+            evaluate_neighbors(ctx)
+            ctx.fillStyle = "black";
+                 
+            zeroth = 5;
+                for (var x = 0; x < 20; x++) {
+                if ((x + 5) % 2 == 0) { continue; }
+                ctx.fillRect(zeroth * 10 + 1, 1 + y_offset + 10 * x, 8, 8); 
+                cell_color[zeroth + 41 * x] = ("black");  
+             } 
+                 
+            zeroth = 23;
+                for (var x = 0; x < 20; x++) {
+                if ((x + 2) % 3 == 0) { continue; }
+                ctx.fillRect(zeroth * 10 + 1, 1 + y_offset + 10 * x, 8, 8); 
+                cell_color[zeroth + 41 * x] = ("black");  
+             }               
+                    
+             zeroth = 17;
+                for (var x = 0; x < 20; x++) {
+                if ((x + 1) % 7 == 0) { continue; }
+                ctx.fillRect(zeroth * 10 + 1, 1 + y_offset + 10 * x, 8, 8); 
+                cell_color[zeroth + 41 * x] = ("black");        
+              } 
+                       
+              } // end another_gen function;
+                             
+                             
+                             
+                             
+                             
+                             
+                             
+                             
+                             
 
 
                              // The following function evaluates the 8 neighbors of the current cell
